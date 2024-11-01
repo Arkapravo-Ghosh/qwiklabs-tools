@@ -1,0 +1,9 @@
+.env
+.env.development
+node_modules/
+.venv
+src/assets/profiles_scraped_data.json
+src/assets/profiles.json
+src/assets/assignments.json
+src/assets/data.csv
+.DS_Store

@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "outDir": "build/dist",
+    "module": "ESNext",
+    "resolveJsonModule": true,
+    "lib": [
+      "ESNext",
+      "DOM",
+    ],
+    "sourceMap": true,
+    "allowJs": true,
+    "moduleResolution": "node",
+    "rootDir": "src",
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "allowSyntheticDefaultImports": true,
+  },
+  "include": [
+    "src/**/*",
+  ],
+  "exclude": [
+    "node_modules",
+    "scripts",
+    "jest",
+  ],
+  "types": [
+    "typePatches",
+  ],
+}
