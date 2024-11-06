@@ -1,18 +1,23 @@
-[
-  "Get Started with Pub/Sub",
-  "Develop GenAI Apps with Gemini and Streamlit",
-  "Prompt Design in Vertex AI",
-  "Analyze Images with the Cloud Vision API",
-  "Networking Fundamentals on Google Cloud",
-  "Monitoring in Google Cloud",
-  "Cloud Speech API: 3 Ways",
-  "App Engine: 3 Ways",
-  "Cloud Functions: 3 Ways",
-  "Get Started with Google Workspace Tools",
-  "Get Started with Dataplex",
-  "The Basics of Google Cloud Compute",
-  "Get Started with Looker",
-  "Get Started with API Gateway",
-  "Get Started with Cloud Storage",
-  "Level 3: Google Cloud Adventures"
-]
+{
+  "assignments": [
+    "Get Started with Pub/Sub",
+    "Develop GenAI Apps with Gemini and Streamlit",
+    "Prompt Design in Vertex AI",
+    "Analyze Images with the Cloud Vision API",
+    "Networking Fundamentals on Google Cloud",
+    "Monitoring in Google Cloud",
+    "Cloud Speech API: 3 Ways",
+    "App Engine: 3 Ways",
+    "Cloud Functions: 3 Ways",
+    "Get Started with Google Workspace Tools",
+    "Get Started with Dataplex",
+    "The Basics of Google Cloud Compute",
+    "Get Started with Looker",
+    "Get Started with API Gateway",
+    "Get Started with Cloud Storage"
+  ],
+  "arcade_assignments": [
+    "Level 3: Google Cloud Adventures",
+    "Diwali in The Arcade"
+  ]
+}
