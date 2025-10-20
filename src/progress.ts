@@ -9,7 +9,7 @@ const completed_some = data.filter((user) => user.completed_assignments_count > 
 console.log("Number of users who have completed some badges:", completed_some.length + "\n");
 
 const completed_none = data.filter((user) => user.completed_assignments_count === 0 && user.arcade_badge_progress === false);
-console.log("Number of users who have completed no badges:", completed_none.length + "\n");
+console.log("Number of users who have completed no badges (including Arcade):", completed_none.length + "\n");
 
 const completed_assignments_count = data.map((user) => user.completed_assignments_count);
 
@@ -20,7 +20,7 @@ for (let index = 0; index <= assignments.assignments.length; index++) {
   if (index === assignments.assignments.length) {
     const users = data.filter((user) => user.completed_assignments_count === assignments.assignments.length && user.arcade_badge_progress === true);
     console.log("\nUsers who have completed all badges:");
-    users.forEach((user) => console.log(user.name));
+    users.forEach((user) => console.log(user.name, "<" + user.email + ">"));
 
     const non_arcade = data.filter((user) => user.completed_assignments_count === assignments.assignments.length && user.arcade_badge_progress === false);
     non_arcade.length > 0 && console.log("\nUsers who have completed all badges but not the Arcade badge:");
@@ -34,3 +34,13 @@ assignments.assignments.map((assignment) => {
   const count = data.filter((user) => user.completed_assignments.includes(assignment)).length;
   console.log(`Number of users who have completed "${assignment}":`, count);
 });
+
+const remaining_one_badge = data.filter((user) => user.completed_assignments_count === assignments.assignments.length - 1);
+console.log("\nNumber of Users who are remaining with only one badge:", remaining_one_badge.length);
+remaining_one_badge.forEach((user) => {
+  console.log(`${user.name} <${user.email}> has pending course "${user.incomplete_assignments[0]}"`);
+});
+
+const expected = remaining_one_badge.length;
+console.log("\nExpected number of users who will complete all badges:", expected);
+console.log("\nExpected number of users by the end of the program:", expected + completed_all.length);

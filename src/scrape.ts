@@ -35,6 +35,7 @@ interface ProfileData {
 
 const main = async (): Promise<void> => {
   console.log("Scraping profiles...");
+  const start = Date.now();
   const new_data: ProfileData[] = [];
   for (const profile of data) {
     const badges: string[] = await scrapeProfile(profile["Google Cloud Skills Boost Profile URL"]);
@@ -61,7 +62,10 @@ const main = async (): Promise<void> => {
     console.log(scraped_data);
     new_data.push(scraped_data);
   };
+  const end = Date.now();
   console.log("Scraping complete!");
+  const time = ((end - start) / 60000).toFixed(2).split(".");
+  console.log("Time taken:", `${time[0]}:${time[1].padEnd(2, "0")}`, "mins");
   console.log("Saving data...");
   fs.writeFileSync("src/assets/profiles_scraped_data.json", JSON.stringify(new_data, null, 2));
   console.log("Data saved!");
