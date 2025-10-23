@@ -7,18 +7,18 @@
     "Get Started with Looker",
     "Get Started with Dataplex",
     "Get Started with Google Workspace Tools",
-    "App Building with Appsheet",
+    "App Building with AppSheet",
     "Develop with Apps Script and AppSheet",
     "Build a Website on Google Cloud",
     "Set Up a Google Cloud Network",
     "Store, Process, and Manage Data on Google Cloud - Console",
-    "Cloud Functions: 3 Ways",
+    "Cloud Run Functions: 3 Ways",
     "App Engine: 3 Ways",
     "Cloud Speech API: 3 Ways",
     "Monitoring in Google Cloud",
     "Analyze Speech and Language with Google APIs",
     "Prompt Design in Vertex AI",
-    "Develop GenAI Apps with Gemini and Streamlit"
+    "Develop Gen AI Apps with Gemini and Streamlit"
   ],
   "arcade_assignments": [
     "Level 3: Generative AI"
