@@ -47,17 +47,20 @@ const main = async (): Promise<void> => {
       };
       return false;
     };
+    const completed_assignments = badges.filter((badge) => typedAssignments.includes(badge));
+    const incomplete_assignments = typedAssignments.filter((assignment) => !badges.includes(assignment));
+
     const scraped_data: ProfileData = {
       name: profile["User Name"],
       email: profile["User Email"],
       profile_url: profile["Google Cloud Skills Boost Profile URL"],
       badges_count: badges.length,
       arcade_badge_progress: getArcadeProgress(badges),
-      incomplete_assignments_count: typedAssignments.length - badges.length,
-      completed_assignments_count: badges.filter((badge) => typedAssignments.includes(badge)).length,
+      incomplete_assignments_count: incomplete_assignments.length,
+      completed_assignments_count: completed_assignments.length,
       badges: badges,
-      incomplete_assignments: typedAssignments.filter((assignment) => !badges.includes(assignment)),
-      completed_assignments: badges.filter((badge) => typedAssignments.includes(badge)),
+      incomplete_assignments: incomplete_assignments,
+      completed_assignments: completed_assignments,
     };
     console.log(scraped_data);
     new_data.push(scraped_data);
