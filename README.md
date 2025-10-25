@@ -2,7 +2,7 @@
 
 ## Description
 
-This repository contains tools that can be used to interact with Qwiklabs which would be useful for the facilitators of programs related to Google Cloud Platform and Qwiklabs.
+This repository contains tools that can be used to interact with Qwiklabs which would be useful for the facilitators of programs related to Google Cloud Platform and Qwiklabs. It now exposes an Express API for loading participants, configuring assignments, triggering the scraper, and reviewing progress.
 
 ## Usage
 
@@ -19,6 +19,17 @@ cd qwiklabs-tools
 npm i
 ```
 
+### Configure environment variables
+
+Create an `.env.development` (or `.env`) file with at least:
+
+```
+MONGO_URI=<your mongodb connection string>
+API_KEY=<shared secret for authenticated routes>
+```
+
+The same values are required in production. `API_KEY` must be supplied through the `Authorization` header when calling protected endpoints (you can send the raw key, `Bearer <key>`, or `Api-Key <key>`).
+
 ### Setup the required csv file
 
 Copy the csv file containing the list of participants sent by Google into `src/assets/data.csv`.
@@ -32,33 +43,25 @@ cp src/assets/assignments_example.json src/assets/assignments.json
 ### Run all tools at once
 
 ```bash
-npm start
+npm run dev
 ```
 
-> **NOTE:** This will run all the tools in order and generate the data in the console output. If you don't want to run all the tools, you can [run the tools individually](#run-the-tools-individually).
+This starts the Express server with hot reload. Use `npm start` when running the compiled build (or inside Docker).
 
-## Run the tools individually
+### Call the API routes
 
-### Get profiles from `data.csv` file and generate the `profiles.json` file
+All routes below are rooted at `http://localhost:8000` by default.
 
-```bash
-npm run load
-```
+| Route | Method | Auth | Description |
+| --- | --- | --- | --- |
+| `/load` | POST | Required | Accepts a CSV payload given by Google to the Faciliator via mail and seeds/updates profiles. Use `Content-Type: text/csv` and place the file contents in the request body. |
+| `/assignments` | POST | Required | Accepts JSON `{ "assignments": [], "arcade_assignments": [] }` and persists badge targets. |
+| `/scrape` | GET | Required | Queues the scraper and returns queued or in-progress status with batch-based progress percentages. |
+| `/progress` | GET | Optional | Returns the full progress summary as JSON. |
+| `/progress/plaintext` | GET | Optional | Returns the same summary as plain text for copy/paste.
 
-### Configure `assignments.json` file
-
-Make an array of strings having exact badge names from Qwiklabs Website and save into a new file named `src/assets/assignments.json`. Check [assignments_example.json](src/assets/assignments_example.json) for reference.
-
-### Scrape data from `profiles.json` and generate the `profiles_scraped_data.json` file
-
-```bash
-npm run scrape
-```
-
-> **NOTE:** This will take a long time to run as it scrapes data from the Qwiklabs website.
-
-### Calculate the progress of users using `profiles_scraped_data.json` and log the progress in the console
-
-```bash
-npm run progress
-```
+**Flow suggestion:**
+1. Upload assignments with `/assignments`.
+2. Load participant profiles with `/load`.
+3. Trigger scraping via `/scrape` and poll the same endpoint to observe progress.
+4. Share progress using `/progress` or `/progress/plaintext`.
