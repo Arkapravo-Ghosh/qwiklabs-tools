@@ -33,13 +33,14 @@ const mapSimple = (profiles: ProfileDocument[]) => profiles.map((profile) => ({
   email: profile.email,
 }));
 
-const sortByRankThenName = (a: ProfileDocument, b: ProfileDocument): number => {
-  const rankOf = (profile: ProfileDocument): number => {
-    const { rank } = profile.progress;
-    return typeof rank === "number" && Number.isFinite(rank) ? rank : Number.MAX_SAFE_INTEGER;
-  };
+const normalizeRank = (value: unknown): number => {
+  return Number.isFinite(value) ? Number(value) : 0;
+};
 
-  const rankDiff = rankOf(a) - rankOf(b);
+const sortByRankThenName = (a: ProfileDocument, b: ProfileDocument): number => {
+  const rankA = normalizeRank(a.progress.rank);
+  const rankB = normalizeRank(b.progress.rank);
+  const rankDiff = rankA - rankB;
   if (rankDiff !== 0) {
     return rankDiff;
   };
@@ -57,14 +58,14 @@ const ensureCompletionRanks = async (profiles: ProfileDocument[], totalAssignmen
     return;
   };
 
-  const unranked = completed.filter((profile) => profile.progress.rank === null || profile.progress.rank === undefined);
+  const unranked = completed.filter((profile) => normalizeRank(profile.progress.rank) === 0);
   if (unranked.length === 0) {
     return;
   };
 
   const maxRank = completed.reduce((max, profile) => {
-    const { rank } = profile.progress;
-    if (typeof rank === "number" && Number.isFinite(rank) && rank > max) {
+    const rank = normalizeRank(profile.progress.rank);
+    if (rank > max) {
       return rank;
     };
     return max;

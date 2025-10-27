@@ -9,7 +9,7 @@ export interface ProfileProgress {
   completedAssignments: string[];
   completedAssignmentsCount: number;
   lastScrapedAt?: Date | null;
-  rank?: number | null;
+  rank: number;
 }
 
 export interface ProfileDocument extends Document {
@@ -30,7 +30,7 @@ const ProgressSchema = new Schema<ProfileProgress>({
   completedAssignments: { type: [String], default: [] },
   completedAssignmentsCount: { type: Number, default: 0 },
   lastScrapedAt: { type: Date },
-  rank: { type: Number },
+  rank: { type: Number, default: 0 },
 }, { _id: false });
 
 const ProfileSchema = new Schema<ProfileDocument>({

@@ -11,7 +11,7 @@ const defaultProgress = {
   completedAssignments: [] as string[],
   completedAssignmentsCount: 0,
   lastScrapedAt: null as Date | null,
-  rank: null as number | null,
+  rank: 0,
 };
 
 export const upsertProfiles = async (profiles: ProfileSeed[]): Promise<number> => {
