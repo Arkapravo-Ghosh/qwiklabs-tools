@@ -66,6 +66,11 @@ const handleProgressUpdate = (update: ScrapeProgressUpdate) => {
   scrapeState.totalBatches = update.totalBatches;
   scrapeState.processedBatches = update.processedBatches;
   scrapeState.batchSize = update.batchSize;
+
+  const snapshot = buildProgressSnapshot();
+  console.log(
+    `[Scrape] Progress ${snapshot.percentage}% - batches ${snapshot.processedBatches}/${snapshot.totalBatches}, profiles ${snapshot.processedProfiles}/${snapshot.totalProfiles}`,
+  );
 };
 
 const runScrapeJob = async (): Promise<void> => {
@@ -90,10 +95,22 @@ const runScrapeJob = async (): Promise<void> => {
     scrapeState.totalBatches = profiles.length > 0 ? Math.ceil(profiles.length / SCRAPE_BATCH_SIZE) : 0;
     scrapeState.batchSize = SCRAPE_BATCH_SIZE;
 
+    console.log(
+      `[Scrape] Started - ${scrapeState.totalProfiles} profiles across ${scrapeState.totalBatches} batches (batch size ${scrapeState.batchSize})`,
+    );
+
     const results = await scrapeProfilesInBatches(profiles, assignments, handleProgressUpdate);
     await applyScrapeResults(results);
     scrapeState.lastCompletedAt = new Date();
     scrapeState.lastError = undefined;
+
+    if (scrapeState.startedAt) {
+      const durationMs = scrapeState.lastCompletedAt.getTime() - scrapeState.startedAt.getTime();
+      const durationSeconds = (durationMs / 1000).toFixed(1);
+      console.log(`[Scrape] Completed in ${durationSeconds}s`);
+    } else {
+      console.log("[Scrape] Completed");
+    };
   } catch (error) {
     console.error("Scrape job failed:", error);
     scrapeState.lastError = error instanceof Error ? error.message : "Unknown scrape error";
@@ -106,9 +123,14 @@ const runScrapeJob = async (): Promise<void> => {
 
 export const queueScrapeJob = async (): Promise<ScrapeStatus> => {
   if (scrapeState.inProgress) {
+    const snapshot = buildProgressSnapshot();
+    console.log(
+      `[Scrape] Status requested - already running (${snapshot.percentage}% complete, batches ${snapshot.processedBatches}/${snapshot.totalBatches})`,
+    );
+
     return {
       status: "in-progress",
-      progress: buildProgressSnapshot(),
+      progress: snapshot,
       lastCompletedAt: scrapeState.lastCompletedAt,
       lastError: scrapeState.lastError,
     };
@@ -124,13 +146,18 @@ export const queueScrapeJob = async (): Promise<ScrapeStatus> => {
   scrapeState.batchSize = SCRAPE_BATCH_SIZE;
   scrapeState.lastError = undefined;
 
+  const snapshot = buildProgressSnapshot();
+  console.log(
+    `[Scrape] Job queued at ${scrapeState.queuedAt?.toISOString() ?? "unknown time"}`,
+  );
+
   setImmediate(() => {
     void runScrapeJob();
   });
 
   return {
     status: "queued",
-    progress: buildProgressSnapshot(),
+    progress: snapshot,
     lastCompletedAt: scrapeState.lastCompletedAt,
   };
 };
