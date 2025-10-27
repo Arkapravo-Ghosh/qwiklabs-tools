@@ -11,6 +11,7 @@ const defaultProgress = {
   completedAssignments: [] as string[],
   completedAssignmentsCount: 0,
   lastScrapedAt: null as Date | null,
+  rank: null as number | null,
 };
 
 export const upsertProfiles = async (profiles: ProfileSeed[]): Promise<number> => {
@@ -25,6 +26,8 @@ export const upsertProfiles = async (profiles: ProfileSeed[]): Promise<number> =
         $set: {
           name: profile.name,
           profileUrl: profile.profileUrl,
+        },
+        $setOnInsert: {
           "progress.badges": defaultProgress.badges,
           "progress.badgesCount": defaultProgress.badgesCount,
           "progress.arcadeBadgeProgress": defaultProgress.arcadeBadgeProgress,
@@ -33,6 +36,7 @@ export const upsertProfiles = async (profiles: ProfileSeed[]): Promise<number> =
           "progress.completedAssignments": defaultProgress.completedAssignments,
           "progress.completedAssignmentsCount": defaultProgress.completedAssignmentsCount,
           "progress.lastScrapedAt": defaultProgress.lastScrapedAt,
+          "progress.rank": defaultProgress.rank,
         },
       },
       upsert: true,
@@ -83,4 +87,15 @@ export const applyScrapeResults = async (results: ScrapedProfileResult[]): Promi
 
 export const getProfilesWithProgress = async (): Promise<ProfileDocument[]> => {
   return await Profile.find();
+};
+
+export const updateProfilesRank = async (emails: string[], rank: number): Promise<void> => {
+  if (emails.length === 0) {
+    return;
+  };
+
+  await Profile.updateMany(
+    { email: { $in: emails } },
+    { $set: { "progress.rank": rank } },
+  );
 };

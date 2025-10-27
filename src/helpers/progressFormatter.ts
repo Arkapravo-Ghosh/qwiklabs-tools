@@ -21,14 +21,22 @@ const formatDistribution = (distribution: Record<number, number>): string[] => {
   return lines;
 };
 
-const formatNamedList = (label: string, data: Array<{ name: string; email: string }>): string[] => {
+interface FormatNamedListOptions {
+  numbered?: boolean;
+}
+
+const formatNamedList = (label: string, data: Array<{ name: string; email: string }>, options: FormatNamedListOptions = {}): string[] => {
   const lines: string[] = [label];
   if (data.length === 0) {
     lines.push("  None");
     return lines;
   };
-  data.forEach((item) => {
-    lines.push(`  - ${item.name} <${item.email}>`);
+  data.forEach((item, index) => {
+    if (options.numbered) {
+      lines.push(`  ${index + 1}. ${item.name} <${item.email}>`);
+    } else {
+      lines.push(`  - ${item.name} <${item.email}>`);
+    };
   });
   return lines;
 };
@@ -83,7 +91,7 @@ export const formatProgressSummary = (summary: ProgressSummary): string => {
   formatAssignments(summary.assignments).forEach((line) => lines.push(line));
   lines.push("");
 
-  formatNamedList("Completed All Badges:", summary.completedAll).forEach((line) => lines.push(line));
+  formatNamedList("Completed All Badges:", summary.completedAll, { numbered: true }).forEach((line) => lines.push(line));
   lines.push("");
 
   formatNamedList("Completed All Without Arcade Badge:", summary.completedAllWithoutArcade).forEach((line) => lines.push(line));

@@ -1,5 +1,5 @@
 import { getAssignments } from "./assignmentService";
-import { getProfilesWithProgress } from "./profileService";
+import { getProfilesWithProgress, updateProfilesRank } from "./profileService";
 import { ProfileDocument } from "../models/Profile";
 
 export interface ProgressSummary {
@@ -33,6 +33,51 @@ const mapSimple = (profiles: ProfileDocument[]) => profiles.map((profile) => ({
   email: profile.email,
 }));
 
+const sortByRankThenName = (a: ProfileDocument, b: ProfileDocument): number => {
+  const rankOf = (profile: ProfileDocument): number => {
+    const { rank } = profile.progress;
+    return typeof rank === "number" && Number.isFinite(rank) ? rank : Number.MAX_SAFE_INTEGER;
+  };
+
+  const rankDiff = rankOf(a) - rankOf(b);
+  if (rankDiff !== 0) {
+    return rankDiff;
+  };
+
+  return a.name.localeCompare(b.name);
+};
+
+const ensureCompletionRanks = async (profiles: ProfileDocument[], totalAssignments: number): Promise<void> => {
+  if (totalAssignments <= 0) {
+    return;
+  };
+
+  const completed = profiles.filter((profile) => profile.progress.completedAssignmentsCount === totalAssignments && profile.progress.arcadeBadgeProgress);
+  if (completed.length === 0) {
+    return;
+  };
+
+  const unranked = completed.filter((profile) => profile.progress.rank === null || profile.progress.rank === undefined);
+  if (unranked.length === 0) {
+    return;
+  };
+
+  const maxRank = completed.reduce((max, profile) => {
+    const { rank } = profile.progress;
+    if (typeof rank === "number" && Number.isFinite(rank) && rank > max) {
+      return rank;
+    };
+    return max;
+  }, 0);
+
+  const nextRank = maxRank > 0 ? maxRank + 1 : 1;
+  const emails = unranked.map((profile) => profile.email);
+  await updateProfilesRank(emails, nextRank);
+  unranked.forEach((profile) => {
+    profile.progress.rank = nextRank;
+  });
+};
+
 const findMostRecentScrape = (profiles: ProfileDocument[]): Date | undefined => {
   let latest: Date | undefined;
   profiles.forEach((profile) => {
@@ -55,7 +100,11 @@ export const buildProgressSummary = async (): Promise<ProgressSummary> => {
 
   const profiles = await getProfilesWithProgress();
 
-  const completedAll = profiles.filter((profile) => profile.progress.completedAssignmentsCount === assignments.assignments.length && profile.progress.arcadeBadgeProgress);
+  await ensureCompletionRanks(profiles, assignments.assignments.length);
+
+  const completedAllProfiles = profiles
+    .filter((profile) => profile.progress.completedAssignmentsCount === assignments.assignments.length && profile.progress.arcadeBadgeProgress)
+    .sort(sortByRankThenName);
   const completedSome = profiles.filter((profile) => profile.progress.completedAssignmentsCount > 0 && profile.progress.completedAssignmentsCount < assignments.assignments.length);
   const completedNone = profiles.filter((profile) => profile.progress.completedAssignmentsCount === 0 && !profile.progress.arcadeBadgeProgress);
   const arcadeBadge = profiles.filter((profile) => profile.progress.arcadeBadgeProgress);
@@ -76,13 +125,13 @@ export const buildProgressSummary = async (): Promise<ProgressSummary> => {
   return {
     totals: {
       profiles: profiles.length,
-      completedAll: completedAll.length,
+      completedAll: completedAllProfiles.length,
       completedSome: completedSome.length,
       completedNone: completedNone.length,
       arcadeBadge: arcadeBadge.length,
     },
     distribution: buildDistribution(profiles),
-    completedAll: mapSimple(completedAll),
+    completedAll: mapSimple(completedAllProfiles),
     completedAllWithoutArcade: mapSimple(profiles.filter((profile) => profile.progress.completedAssignmentsCount === assignments.assignments.length && !profile.progress.arcadeBadgeProgress)),
     assignments: assignmentStats,
     remainingOneBadge,
