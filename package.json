@@ -31,7 +31,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.4",
     "@types/morgan": "^1.9.10",
-    "axios": "^1.7.7",
+    "axios": "^1.13.5",
     "cheerio": "^1.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
